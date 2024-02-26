@@ -37,11 +37,17 @@ const login = () => {
                 loginData
             );
             if (response.data) {
-                await AsyncStorage.setItem("user", JSON.stringify(response.data));
                 Alert.alert("Login Successful", "Login has been made successfully");
                 setEmail("");
                 setPassword("");
-                router.push("/(home)");
+                await AsyncStorage.setItem("user", JSON.stringify(response.data))
+                    .then(() => {
+                        router.replace("/(home)");
+                        // router.push("/(home)");
+                    })
+                    .catch((error) => {
+                        console.log("error setting user", error);
+                    });
             }
         }
         catch (error) {

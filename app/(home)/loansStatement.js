@@ -140,7 +140,7 @@ const loansStatement = () => {
             size={24}
             color="white"
           />
-          <Text style={{ color: "white", fontSize: 16 }}>Hey, {user.name} click here to apply for a loan</Text>
+          <Text style={{ color: "white", fontSize: 16 }}>Hey, {user?.name} click here to apply for a loan</Text>
         </Pressable>
       </View>
          

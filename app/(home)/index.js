@@ -55,6 +55,7 @@ const index = () => {
                 onPress={async () => {
                   await AsyncStorage.removeItem("user")
                     .then(() => {
+                      // refresh 
                       router.push("/(home)/login");
                     })
                     .catch((error) => {
