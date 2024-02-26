@@ -17,6 +17,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { REACT_APP_API_URL } from "../../config";
 
 
 
@@ -42,7 +43,7 @@ const loansStatement = () => {
   useEffect(() => {
     const fetchLoanData = async () => {
       try {
-        const response = await axios.get("http://192.168.0.102:8000/loans",
+        const response = await axios.get(`${REACT_APP_API_URL}/loans`,
           {
             params: {
               userId: user._id,

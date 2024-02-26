@@ -139,13 +139,34 @@ const userBankSchema = new mongoose.Schema({
     },
 });
 
+const ngoSchema = new mongoose.Schema({
+    image: {
+        type: String,
+        required: true,
+    },
+    name: {
+        type: String,
+        required: true,
+    },
+    description: {
+        type: String,
+        required: true,
+    },
+    link: {
+        type: String,
+        required: true,
+    },
+});
+
+
 
 const UserBank = mongoose.model("UserBank", userBankSchema);
+const NGO = mongoose.model("NGO", ngoSchema);
 const Loan = mongoose.model("Loan", loanSchema);
 const Payment = mongoose.model("Payment", paymentSchema);
 const Bank = mongoose.model("Bank", bankSchema);
 const User = mongoose.model("User", userSchema);
 
-module.exports = { Bank, User, Loan, Payment, UserBank };
+module.exports = { Bank, User, Loan, Payment, UserBank, NGO };
 
 

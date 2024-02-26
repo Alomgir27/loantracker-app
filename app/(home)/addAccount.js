@@ -24,6 +24,49 @@ import {
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
+import * as DocumentPicker from "expo-document-picker";
+import { REACT_APP_API_URL } from "./../../config";
+
+
+
+const accountNumberGenerator = () => {
+    const characters = '0123456789';
+    const prefix = 'AC';
+    const idLength = 12;
+    
+    const generateRandomDigit = () => Math.floor(Math.random() * 10);
+  
+    let accountNumber = prefix;
+  
+    // Append characters and digits to the account number
+    for (let i = 0; i < idLength; i++) {
+      accountNumber += generateRandomDigit();
+    }
+  
+    return accountNumber;
+  }
+  
+  const ifscCodeGenerator = () => {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    const prefix = 'IFSC';
+    const idLength = 11;
+  
+    const generateRandomChar = () => {
+      const randomIndex = Math.floor(Math.random() * characters.length);  
+      return characters.charAt(randomIndex);
+    };
+  
+    let ifscCode = prefix;
+  
+    // Append characters and digits to the IFSC code
+    for (let i = 0; i < idLength; i++) {
+      ifscCode += generateRandomChar();
+    }
+  
+    return ifscCode;
+  }
+  
+
 
 
 
@@ -47,27 +90,60 @@ const addAccount = () => {
         }
         })();
     }, []);
-    const handleAddAccount = async () => {
+    const handleDocuments = async () => {
         try {
-            const response = await axios.post("http://192.168.0.102:8000/userBank", {
-                user: user._id,
-                bank: bankId,
-                accountNumber,
-                ifscCode,
-                balance,
-                documents,
+            const result = await DocumentPicker.getDocumentAsync({
+                type: "application/pdf",
+                copyToCacheDirectory: true,
+            });
+
+            if (!result.canceled) {
+                setDocuments(result.assets[0]);
+            }
+        } catch (error) {
+            console.log("error selecting documents", error);
+        }
+    };
+
+    const handleAddAccount = async () => {
+        if (!bankId || !accountNumber || !ifscCode || !balance || !documents) {
+            return alert("All fields are required");
+        }
+        setLoading(true);
+        console.log(documents);
+        try {
+            const formData = new FormData();
+            formData.append("documents", {
+                name: documents.name,
+                type: documents.mimeType,
+                mimeType: documents.mimeType,
+                uri: documents.uri,
+            });
+            formData.append("userId", user?._id);
+            formData.append("bank", bankId);
+            formData.append("accountNumber", accountNumber);
+            formData.append("ifscCode", ifscCode);
+            formData.append("balance", balance);
+            const response = await axios.post(`${REACT_APP_API_URL}/addBankAccount`,
+                formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
             });
             console.log(response.data);
             router.push("/(home)/openingAccounts");
         } catch (error) {
             console.log("error adding account", error);
+            const errorMessage = error.response.data.message;
+            alert(errorMessage);
         }
+        setLoading(false);
     }
     useEffect(() => {
         const fetchBanks = async () => {
             try {
                 setLoading(true);
-                const response = await axios.get("http://192.168.0.102:8000/banks");
+                const response = await axios.get(`${REACT_APP_API_URL}/banks`);
                 setBanks(response.data);
                 setLoading(false);
             }
@@ -108,8 +184,11 @@ const addAccount = () => {
                         <FontAwesome5 name="university" size={24} color="black" />
                         <Picker
                             selectedValue={bankId}
-                            onValueChange={(itemValue, itemIndex) =>
+                            onValueChange={(itemValue, itemIndex) => {
                                 setBankId(itemValue)
+                                setAccountNumber(accountNumberGenerator())
+                                setIfscCode(ifscCodeGenerator())
+                            }
                             }
                             style={{ flex: 1 }}
 
@@ -134,6 +213,7 @@ const addAccount = () => {
                             placeholder="Account Number"
                             value={accountNumber}
                             onChangeText={(text) => setAccountNumber(text)}
+                            editable={false}
                         />
                     </View>
                 </View>
@@ -147,6 +227,7 @@ const addAccount = () => {
                             placeholder="IFSC Code"
                             value={ifscCode}
                             onChangeText={(text) => setIfscCode(text)}
+                            editable={false}
                         />
                     </View>
                 </View>
@@ -166,10 +247,13 @@ const addAccount = () => {
                     <Text style={styles.label}>Documents</Text>
                     <View style={styles.input}>
                         <Entypo name="documents" size={24} color="black" />
-                        <Button
-                            title="Upload Documents"
-                            onPress={() => setDocuments("documents")}
-                        />
+                        <View style={{ flex: 1, marginLeft: 10 }}>
+                            {documents && (
+                                <Text style={{ marginBottom: 10 }}>{documents.name}</Text>
+                            )}
+                            <Button title="Select Documents" color="black" onPress={handleDocuments} />
+                        </View>
+                        
                     </View>
                 </View>
                 <Pressable
@@ -182,6 +266,7 @@ const addAccount = () => {
                         alignItems: "center",
                         marginVertical: 10,
                     }}
+                    disabled={loading}
                 >
                     {loading ? (
                         <ActivityIndicator size="small" color="white" />

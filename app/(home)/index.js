@@ -37,7 +37,40 @@ const index = () => {
             </Text>
             <Entypo name="lock" size={24} color="black" />
           </View>
-          {user ? <Text style={{ marginTop: 10, fontSize: 16, fontWeight: "600" }}>Welcome {user.name}</Text> : null}
+          {user && (
+            <LinearGradient
+              colors={["#1e3c72", "#2a5298"]}
+              style={{
+                flex: 1,
+                padding: 10,
+                borderRadius: 7,
+                marginTop: 10,
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignContent: "center",
+              }}
+            >
+              <Text style={{ marginTop: 10, fontSize: 16, fontWeight: "600" }}>Welcome {user.name}</Text>
+              <Pressable
+                onPress={async () => {
+                  await AsyncStorage.removeItem("user")
+                    .then(() => {
+                      router.push("/(home)/login");
+                    })
+                    .catch((error) => {
+                      console.log("error logging out", error);
+                    });
+                }}
+                style={{
+                  padding: 10,
+                  backgroundColor: "#4b6cb7",
+                  borderRadius: 5,
+                }}
+              >
+                <Text style={{ color: "white" }}>Logout</Text>
+              </Pressable>
+            </LinearGradient>
+          )}
           <View
             style={{
               marginTop: 20,
@@ -261,7 +294,7 @@ const index = () => {
               </View>
             </Pressable>
             <Pressable
-              onPress={() => user ?  router.push("/(home)/loansScheme") : router.push("/(home)/login")}
+              onPress={() =>  router.push("/(home)/ngos") }
               style={{
                 backgroundColor: "#BE93C5",
                 borderRadius: 6,
@@ -292,7 +325,7 @@ const index = () => {
                   flex: 1,
                 }}
               >
-                Loans Scheme
+                NGOs
               </Text>
               <View
                 style={{
@@ -381,7 +414,7 @@ const index = () => {
             }}
           >
             <Pressable
-              onPress={() => router.push("/(home)/holidayList")}
+              onPress={() => router.push("/(home)/loansScheme")}
               style={{
                 backgroundColor: "#D3CCE3",
                 borderRadius: 6,

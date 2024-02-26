@@ -4,6 +4,9 @@ const mongoose = require("mongoose");
 const moment = require("moment");
 const fs = require("fs");
 const bcrypt = require("bcrypt");
+const multer = require("multer");
+require("dotenv").config();
+
 
 
 const app = express();
@@ -36,9 +39,20 @@ app.listen(port, () => {
 
 const Employee = require("./models/employee");
 const Attendance = require("./models/attendance");
-const { Bank, User, Loan, Payment, UserBank } = require('./models/index');
+const { Bank, User, Loan, Payment, UserBank, NGO } = require('./models/index');
 
 
+//multer configuration
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads");
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
+
+const upload = multer({ storage: storage });
 
 
 
@@ -106,44 +120,6 @@ const transactionIdGenerator = () => {
 
   return transactionId;
 };
-
-
-const accountNumberGenerator = () => {
-  const characters = '0123456789';
-  const prefix = 'AC';
-  const idLength = 12;
-  
-  const generateRandomDigit = () => Math.floor(Math.random() * 10);
-
-  let accountNumber = prefix;
-
-  // Append characters and digits to the account number
-  for (let i = 0; i < idLength; i++) {
-    accountNumber += generateRandomDigit();
-  }
-
-  return accountNumber;
-}
-
-const ifscCodeGenerator = () => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  const prefix = 'IFSC';
-  const idLength = 11;
-
-  const generateRandomChar = () => {
-    const randomIndex = Math.floor(Math.random() * characters.length);  
-    return characters.charAt(randomIndex);
-  };
-
-  let ifscCode = prefix;
-
-  // Append characters and digits to the IFSC code
-  for (let i = 0; i < idLength; i++) {
-    ifscCode += generateRandomChar();
-  }
-
-  return ifscCode;
-}
 
 
 
@@ -321,9 +297,10 @@ app.get('/loan/:id', async (req, res) => {
 })
 
 
-app.post('/userBank', async (req, res) => {
+app.post('/addBankAccount', upload.single('documents'), async (req, res) => {
   try {
-    const { userId, bank, balance } = req.body;
+    const { userId, bank, balance, accountNumber, ifscCode } = req.body;
+    console.log(req.file, req.body);
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -333,15 +310,13 @@ app.post('/userBank', async (req, res) => {
       return res.status(404).json({ message: "Bank not found" });
     }
 
-    const accountNumber = accountNumberGenerator();
-    const ifscCode = ifscCodeGenerator();
-
     const newUserBank = new UserBank({
       user: userId,
       bank,
       accountNumber,
       ifscCode,
       balance,
+      documents: req.file.path,
     });
 
     await newUserBank.save();
@@ -362,7 +337,25 @@ app.get('/userBanks', async (req, res) => {
   }
 });
 
+app.get('/userBank/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userBank = await UserBank.findById(id).populate('bank').populate('loans');
+    res.status(200).json(userBank);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to retrieve the user bank" });
+  }
+});
 
+
+app.get('/ngos', async (req, res) => {
+  try {
+    const ngos = await NGO.find();
+    res.status(200).json(ngos);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to retrieve the ngos" });
+  }
+});
 
 
 //endpoint to register a employee

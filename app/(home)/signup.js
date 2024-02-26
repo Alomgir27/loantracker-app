@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { REACT_APP_API_URL } from "../../config";
   
 
 const signup = () => {
@@ -35,7 +36,7 @@ const signup = () => {
 
         try {
             const response = await axios.post(
-                "http://192.168.0.102:8000/signup",
+                `${REACT_APP_API_URL}/signup`,
                 signupData
             );
             if (response.data) {

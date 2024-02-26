@@ -13,6 +13,7 @@ import { AntDesign } from "@expo/vector-icons";
 import { FontAwesome5 } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
 import axios from "axios";
+import { REACT_APP_API_URL } from "../../config";
 
 const user = () => {
   const params = useLocalSearchParams();
@@ -41,7 +42,7 @@ const user = () => {
         status: attendanceStatus,
       };
       const response = await axios.post(
-        "http://192.168.0.102:8000/attendance",
+        `${REACT_APP_API_URL}/attendance`,
         attendanceData
       );
 

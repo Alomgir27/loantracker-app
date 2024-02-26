@@ -20,6 +20,7 @@ import {
     useLocalSearchParams,
 } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { REACT_APP_API_URL } from "./../../../config";
 
 
 
@@ -60,7 +61,7 @@ const loanDetails = () => {
     useEffect(() => {
         (async () => {
             try {
-                const res = await axios.get(`http://192.168.0.102:8000/loan/${loanId}`);
+                const res = await axios.get(`${REACT_APP_API_URL}/loan/${loanId}`);
                 setLoan(res.data);
                 setLoading(false);
             } catch (error) {

@@ -13,6 +13,8 @@ export default function Layout() {
       <Stack.Screen name="signup" />
       <Stack.Screen name="applyLoan" />
       <Stack.Screen name="(loan)/[loanId]" />
+      <Stack.Screen name="(account)/[_id]" />
+      <Stack.Screen name="ngos" />
     </Stack>
   );
 }

@@ -33,7 +33,7 @@ mongoose
     });
     
 // insert data to mongodb
-const { Bank } = require("./models/index");
+const { Bank, NGO } = require("./models/index");
 
 
 // (async () => {
@@ -71,8 +71,32 @@ const { Bank } = require("./models/index");
 //     await browser.close();
 // })();
 
+// https://www.banglasites.com/ngos/
 
+// body > div.container > div.body-content > ul > li:nth-child(1) > div > div.col-sm-3.hidden-xs > img
+// body > div.container > div.body-content > ul > li:nth-child(1) > div > div.col-sm-8.col-xs-12.list-main > h3 > a
+// body > div.container > div.body-content > ul > li:nth-child(1) > div > div.col-sm-8.col-xs-12.list-main > p
+// body > div.container > div.body-content > ul > li:nth-child(1) > div > div.col-sm-8.col-xs-12.list-main > a
 
+(async () => {
+    const browser = await puppeteer.launch({ headless: false, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+    const page = await browser.newPage({ waitUntil: 'networkidle2' });
+    await page.goto('https://www.banglasites.com/ngos/', { waitUntil: 'networkidle2' });
+    const ngoList = await page.evaluate(() => {
+        const ngoList = [];
+        document.querySelectorAll('body > div.container > div.body-content > ul > li').forEach(async (el) => {
+            const image = el.querySelector('div > div.col-sm-3.hidden-xs > img').src;
+            const name = el.querySelector('div > div.col-sm-8.col-xs-12.list-main > h3 > a').innerText.trim();
+            const description = el.querySelector('div > div.col-sm-8.col-xs-12.list-main > p').innerText.trim();
+            const link = el.querySelector('div > div.col-sm-8.col-xs-12.list-main > a').href;
+            ngoList.push({ image, name, description, link });
+        });
+        return ngoList;
+    });
+    console.log(ngoList);
+    await NGO.insertMany(ngoList);
+    await browser.close();
+})();
 
 
 

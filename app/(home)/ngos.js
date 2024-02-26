@@ -17,19 +17,20 @@ import {
     MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import axios from "axios";
-import { REACT_APP_API_URL } from "./../../config";
-  
 
-const banksList = () => {
-    const [banks, setBanks] = useState([]);
+import axios from "axios";
+import { REACT_APP_API_URL } from "../../config";
+
+
+const ngosList = () => {
+    const [ngos, setNgos] = useState([]);
     const [search, setSearch] = useState("");
     const router = useRouter();
 
     const fetchBanks = async () => {
         try {
-            const response = await axios.get(`${REACT_APP_API_URL}/banks`);
-            setBanks(response.data);
+            const response = await axios.get(`${REACT_APP_API_URL}/ngos`);
+            setNgos(response.data);
         }
         catch (error) {
             console.log("error fetching banks", error);
@@ -40,11 +41,12 @@ const banksList = () => {
     }, []);
 
     const handleSearch = () => {
-        const filteredBanks = banks.filter((bank) => {
-            return bank.bank.toLowerCase().includes(search.toLowerCase());
-        });
-        setBanks(filteredBanks);
+        const filteredNgos = ngos.filter((ngo) =>
+            ngo.name.toLowerCase().includes(search.toLowerCase())
+        );
+        setNgos(filteredNgos);
     }
+        
 
     useEffect(() => {
         handleSearch();
@@ -97,60 +99,56 @@ const banksList = () => {
                 </Pressable>
             </View>
 
-                
-            {/* entity -> name, links, and image */}
-            {/* //make two pressables, one for the image and one for the name and links
-            //the image pressable will navigate to the bank's website
-            //the name and links pressable will navigate to the bank's details page */}
-            {banks.map((bank) => {
-                return (
-                    <Pressable
-                        // onPress={() => router.push("/(home)/bankdetails", { bank: bank })}
-                        key={bank._id}
+            {/* ngos */}
+            <View style={{ margin: 10 }}>
+                {ngos.map((ngo, index) => (
+                    <View
+                        key={index}
                         style={{
                             flexDirection: "row",
                             alignItems: "center",
-                            gap: 10,
+                            backgroundColor: "white",
                             marginVertical: 10,
-                            marginHorizontal: 12,
                         }}
                     >
-                        <Pressable
-                            onPress={() => Linking.openURL(bank.link)}
-                            style={{
-                                width: 50,
-                                height: 50,
-                                borderRadius: 8,
-                                padding: 10,
-                                backgroundColor: "#4b6cb7",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                marginTop: 20,
-                            }}
-                        >
-                            <Image
-                                source={{ uri: bank.image }}
-                                style={{ width: 50, height: 50, borderRadius: 8, resizeMode: "cover" }}
-                            />
-                        </Pressable>
-                        <View style={{ flex: 1 }}>
-                            <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-                                {bank.bank}
+                        <Image
+                            source={{ uri: ngo.image }}
+                            style={{ width: 100, height: 100, borderRadius: 10 }}
+                        />
+                        <View style={{ marginLeft: 10, flex: 1 }}>
+                            <Text style={{ fontSize: 20, fontWeight: "bold" }}>
+                                {ngo.name}
                             </Text>
-                            <Text style={{ marginTop: 5, color: "gray" }}>
-                                {bank.link.split("/")[2]}
-                            </Text>
+                            <Text>{ngo.description}</Text>
+                            <Pressable
+                                onPress={() => Linking.openURL(ngo.link)}
+                                style={{
+                                    flexDirection: "row",
+                                    alignItems: "center",
+                                    backgroundColor: "white",
+                                    padding: 5,
+                                    borderRadius: 5,
+                                    marginTop: 10,
+                                    width: 100,
+                                    justifyContent: "center",
+                                }}
+                            >
+                                <Text style={{ color: "blue" }}>Visit</Text>
+                                <MaterialIcons
+                                    name="keyboard-arrow-right"
+                                    size={24}
+                                    color="blue"
+                                />
+                            </Pressable>
                         </View>
-                    </Pressable>
-                );
-            }
-            )}
+                    </View>
+                ))}
+            </View>
         </ScrollView>
     );
 }
 
+export default ngosList;
 
-export default banksList;
-            
-                        
-                    
+                
+           

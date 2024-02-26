@@ -19,6 +19,8 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
+import { REACT_APP_API_URL } from "./../../config";
+
 
 LogBox.ignoreLogs([
     "Non-serializable values were found in the navigation state",
@@ -42,7 +44,7 @@ const applyLoan = () => {
       const fetchBanks = async () => {
         try {
           setLoading(true);
-          const response = await axios.get("http://192.168.0.102:8000/banks");
+          const response = await axios.get(`${REACT_APP_API_URL}/banks`);
           setBanks(response.data);
           setLoading(false);
         } catch (error) {
@@ -76,7 +78,7 @@ const applyLoan = () => {
        
         setLoading(true);
         const response = await axios.post(
-          "http://192.168.0.102:8000/apply-loan",
+          `${REACT_APP_API_URL}/apply-loan`,
           {
             amount,
             duration,

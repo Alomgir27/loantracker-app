@@ -14,6 +14,7 @@ import { Ionicons } from "@expo/vector-icons";
 import axios from "axios";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { REACT_APP_API_URL } from "./../../config";
 
 const loansPayment = () => {
   const [banks, setBanks] = useState([]);
@@ -71,7 +72,7 @@ const loansPayment = () => {
 
     try {
       const response = await axios.post(
-        "http://192.168.0.102:8000/loansPayment",
+        `${REACT_APP_API_URL}/loansPayment`,
         paymentData
       );
       if (response.status === 201) {
@@ -84,7 +85,7 @@ const loansPayment = () => {
         router.push("/(home)");
       }
     } catch (error) {
-      Alert.alert("Payment Failed", "An error occurred during payment");
+      Alert.alert("Payment Failed", "An error occurred during payment" + error);
       console.log("payment failed", error);
     }
     setLoading(false);
@@ -93,7 +94,7 @@ const loansPayment = () => {
 
   const fetchBanks = async () => {
     try {
-      const response = await axios.get("http://192.168.0.102:8000/banks");
+      const response = await axios.get(`${REACT_APP_API_URL}/banks`);
       setBanks(response.data);
     }
     catch (error) {
@@ -107,7 +108,7 @@ const loansPayment = () => {
   useEffect(() => {
     const fetchLoanData = async () => {
       try {
-        const response = await axios.get("http://192.168.0.102:8000/loans",
+        const response = await axios.get(`${REACT_APP_API_URL}/loans`,
           {
             params: {
               userId: user._id,

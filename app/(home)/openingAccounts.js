@@ -1,10 +1,18 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  Image,
+} from "react-native";
 import React, { useState, useEffect } from "react";
 import moment from "moment";
 import axios from "axios";
 import { AntDesign } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { REACT_APP_API_URL } from "../../config";
 
 const openingAccounts = () => {
   const router = useRouter();
@@ -13,7 +21,7 @@ const openingAccounts = () => {
   useEffect(() => {
     const fetchAccounts = async () => {
       try {
-        const response = await axios.get(`http://192.168.0.102:8000/userBanks`, {
+        const response = await axios.get(`${REACT_APP_API_URL}/userBanks`, {
           params: {
             userId: user._id,
           },
@@ -23,7 +31,9 @@ const openingAccounts = () => {
         console.log("error fetching accounts", error);
       }
     };
-    fetchAccounts();
+    if (user) {
+      fetchAccounts();
+    }
   }, [user]);
   useEffect(() => {
     (async () => {
@@ -46,7 +56,16 @@ const openingAccounts = () => {
           padding: 20,
         }}
       >
-        <Text style={{ fontSize: 20, fontWeight: "bold" }}>Opening Accounts</Text>
+      <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <MaterialCommunityIcons
+          onPress={() => router.push("/(home)")}
+          name="arrow-left"
+          size={24}
+          color="black"
+          style={{ marginRight: 10 }}
+       />
+          <Text style={{ fontSize: 20, fontWeight: "bold" }}>Opening Accounts</Text>
+      </View>
         <Pressable
           onPress={() => router.push("/(home)/addAccount")}
           style={{
@@ -61,16 +80,7 @@ const openingAccounts = () => {
       <View style={{ marginHorizontal: 12 }}>
         {accounts.map((account, index) => (
           <Pressable
-            onPress={() =>
-              router.push({
-                pathname: "/[account]",
-                params: {
-                  accountNumber: account.accountNumber,
-                  balance: account.balance,
-                  ifscCode: account.ifscCode,
-                },
-              })
-            }
+            onPress={() => router.push("/(home)/(account)/" + account._id)}
             key={index}
             style={{
               flexDirection: "row",
@@ -82,6 +92,9 @@ const openingAccounts = () => {
               borderRadius: 5,
             }}
           >
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <Image source={{ uri: account.bank?.image }} style={{ width: 50, height: 50 }} />
+            </View>
             <View>
               <Text style={{ fontSize: 16, fontWeight: "bold" }}>
                 {account.bank?.bank.trim()} 
@@ -89,10 +102,13 @@ const openingAccounts = () => {
               <Text style={{ color: "gray" }}>
                 {account.accountNumber}
               </Text>
+              <Text style={{ color: "gray" }}>
+                {account.ifscCode}
+              </Text>
             </View>
             <Text style={{ fontSize: 16, fontWeight: "bold" }}>
               ₹{account.balance}
-            </Text>
+            </Text>            
           </Pressable>
         ))}
       </View>
